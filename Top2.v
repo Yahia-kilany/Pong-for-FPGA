@@ -34,27 +34,57 @@ module Top2(
     
     wire w_reset, w_up1, w_down1, w_up2, w_down2, w_vid_on, w_p_tick;
     wire [9:0] w_x, w_y;
-    reg [11:0] rgb_reg;
-    wire [11:0] rgb_next;
+    wire [11:0] w_rgb_next;
+    wire pad1_on, pad2_on,ball_on;
+    wire [9:0] y_pad1_t, y_pad1_b, y_pad2_t, y_pad2_b; // Add paddle boundaries
+    wire [9:0] X_PAD1_L, X_PAD1_R, X_PAD2_L, X_PAD2_R; // Add paddle X boundaries
     
     vga_controller vga(.clk_100MHz(clk_100MHz), .reset(w_reset), .video_on(w_vid_on),
                        .hsync(hsync), .vsync(vsync), .p_tick(w_p_tick), .x(w_x), .y(w_y));
     
-    pixel_gen pg(.clk(clk_100MHz), .reset(w_reset), .up1(w_up1), .down1(w_down1),
-                   .up2(w_up2), .down2(w_down2), .video_on(w_vid_on), .x(w_x), .y(w_y), .rgb(rgb_next));
+    Paddle pg(.clk(clk_100MHz), .reset(w_reset), .up1(w_up1), .down1(w_down1),
+                   .up2(w_up2), .down2(w_down2), .x(w_x), .y(w_y), 
+                   .pad1_t(y_pad1_t), .pad1_b(y_pad1_b), 
+                   .pad1_l(X_PAD1_L), .pad1_r(X_PAD1_R),
+                   .pad2_t(y_pad2_t), .pad2_b(y_pad2_b), 
+                   .pad2_l(X_PAD2_L), .pad2_r(X_PAD2_R),
+                   .pad1_on(pad1_on), .pad2_on(pad2_on));
     
+   ball b(
+    .clk(clk_100MHz),
+    .reset(w_reset),
+    .pad1_t(y_pad1_t),
+    .pad1_b(y_pad1_b),
+    .pad1_r(X_PAD1_R),
+    .pad1_l(X_PAD1_L),
+    .pad2_t(y_pad2_t),
+    .pad2_b(y_pad2_b),
+    .pad2_r(X_PAD2_R),
+    .pad2_l(X_PAD2_L),
+    .x(w_x),
+    .y(w_y),
+    .sq_on(ball_on)
+);
+
+
+    color_mux cm(.video_on(w_vid_on), .pad1_on(pad1_on), .pad2_on(pad2_on),.ball_on(ball_on),.rgb(w_rgb_next));
+
     debouncer dbR(.clk(clk_100MHz), .btn_in(reset), .btn_out(w_reset));
     debouncer dbU1(.clk(clk_100MHz), .btn_in(up1), .btn_out(w_up1));
     debouncer dbD1(.clk(clk_100MHz), .btn_in(down1), .btn_out(w_down1));
     debouncer dbU2(.clk(clk_100MHz), .btn_in(up2), .btn_out(w_up2));
     debouncer dbD2(.clk(clk_100MHz), .btn_in(down2), .btn_out(w_down2));
-    
+
+    reg [11:0] rgb_reg;
+
     // rgb buffer
     always @(posedge clk_100MHz)
         if(w_p_tick)
-            rgb_reg <= rgb_next;
+            rgb_reg <= w_rgb_next;
             
     assign rgb = rgb_reg;
     
 endmodule
+
+
 

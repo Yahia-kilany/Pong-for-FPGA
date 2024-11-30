@@ -1,3 +1,25 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 11/30/2024 04:38:25 PM
+// Design Name: 
+// Module Name: Top2
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
 module Top2(
     input clk_100MHz,       // from Basys 3
     input reset,            // btnR
@@ -35,3 +57,4 @@ module Top2(
     assign rgb = rgb_reg;
     
 endmodule
+

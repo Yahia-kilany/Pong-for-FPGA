@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module Top2(
+module Top(
     input clk_100MHz,       // from Basys 3
     input reset,            // btnR
     input up1,              // btnU for paddle 1

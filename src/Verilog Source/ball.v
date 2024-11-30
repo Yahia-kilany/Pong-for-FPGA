@@ -99,7 +99,7 @@ module ball(
             (sq_y_b >= pad1_t) && (sq_y_t <= pad1_b)) // Check for overlap with pad1
             x_delta_next = SQUARE_VELOCITY_NEG;       // Change x direction (move left)
         else if ((sq_x_l <= pad2_r) && (sq_x_r >= pad2_l) &&
-         (sq_y_b >= pad2_t) && (sq_y_t <= pad2_b)) // Check for overlap with the pad
+         (sq_y_b >= pad2_t) && (sq_y_t <= pad2_b)) // Check for overlap with the right pad2
     x_delta_next = SQUARE_VELOCITY_POS;  // Change x direction (move right)
     end
 endmodule

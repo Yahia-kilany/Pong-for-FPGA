@@ -75,9 +75,16 @@ module ball(
     assign sq_x_r = sq_x_l + SQUARE_SIZE - 1;   // Right boundary
     assign sq_y_b = sq_y_t + SQUARE_SIZE - 1;   // Bottom boundary
     
-    // Square status signal
-    assign sq_on = (sq_x_l <= x) && (x <= sq_x_r) &&
-                   (sq_y_t <= y) && (y <= sq_y_b);
+    // Ball center coordinates
+    wire [9:0] ball_center_x = sq_x_l + (SQUARE_SIZE / 2);
+    wire [9:0] ball_center_y = sq_y_t + (SQUARE_SIZE / 2);
+    
+    // Circle rendering logic
+    wire [9:0] dx = (x > ball_center_x) ? (x - ball_center_x) : (ball_center_x - x);
+    wire [9:0] dy = (y > ball_center_y) ? (y - ball_center_y) : (ball_center_y - y);
+    
+    assign sq_on = ((dx * dx) + (dy * dy)) <= ((SQUARE_SIZE / 2) * (SQUARE_SIZE / 2));
+
     
     // New square position
     assign sq_x_next = (refresh_tick) ? sq_x_reg + x_delta_reg : sq_x_reg;

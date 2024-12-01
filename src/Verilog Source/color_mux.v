@@ -28,7 +28,7 @@ module color_mux(
     output reg [11:0] rgb
     );
     wire [11:0] pad1_rgb = 12'hAAA;       // gray paddle 1
-    wire [11:0] pad2_rgb = 12'hF00;       // red paddle 2
+    wire [11:0] pad2_rgb = 12'hF00;       // blue paddle 2
     wire [11:0] bg_rgb = 12'hFFF;         // white background
     wire [11:0] ball_rgb = 12'h0FF;             // red & green = yellow for square
 

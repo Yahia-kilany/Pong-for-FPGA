@@ -97,6 +97,6 @@ module Paddle(
     assign pad1_r = X_PAD1_R;
     assign pad2_t = y_pad2_t;
     assign pad2_b = y_pad2_b; 
-    assign pad2_l = X_PAD1_L;
-    assign pad2_r = X_PAD1_R;
+    assign pad2_l = X_PAD2_L;
+    assign pad2_r = X_PAD2_R;
  endmodule

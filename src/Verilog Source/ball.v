@@ -32,82 +32,103 @@ module ball(
     input [9:0] pad2_r,
     input [9:0] pad2_l,
     input [9:0] x, y,                       // from VGA controller
-    output sq_on
+    output ball_on,
+    output reg score1,
+    output reg  score2
     );
     
     parameter X_MAX = 639;                  // right border of display area
     parameter Y_MAX = 479;                  // bottom border of display area
-    parameter SQUARE_SIZE = 10;             // width of square sides in pixels
-    parameter SQUARE_VELOCITY_POS = 1;      // set position change value for positive direction
-    parameter SQUARE_VELOCITY_NEG = -1;     // set position change value for negative direction  
+    parameter BALL_SIZE = 10;               // width of ball diameter in pixels
+    parameter BALL_VELOCITY_POS = 1;        // set position change value for positive direction
+    parameter BALL_VELOCITY_NEG = -1;       // set position change value for negative direction  
     
     // Create a 60Hz refresh tick at the start of vsync 
     wire refresh_tick;
     assign refresh_tick = ((y == 481) && (x == 0)) ? 1 : 0;
     
-    // Square boundaries and position
-    wire [9:0] sq_x_l, sq_x_r;              // Square left and right boundary
-    wire [9:0] sq_y_t, sq_y_b;              // Square top and bottom boundary
+    // Ball boundaries and position
+    wire [9:0] ball_x_l, ball_x_r;          // Ball left and right boundary
+    wire [9:0] ball_y_t, ball_y_b;          // Ball top and bottom boundary
     
-    reg [9:0] sq_x_reg, sq_y_reg;           // Regs to track left, top position
-    wire [9:0] sq_x_next, sq_y_next;        // Buffer wires
+    reg [9:0] ball_x_reg, ball_y_reg;       // Regs to track left, top position
+    wire [9:0] ball_x_next, ball_y_next;    // Buffer wires
     
-    reg [9:0] x_delta_reg, y_delta_reg;     // Track square speed
+    reg [9:0] x_delta_reg, y_delta_reg;     // Track ball speed
     reg [9:0] x_delta_next, y_delta_next;   // Buffer regs    
     
     // Register control
     always @(posedge clk or posedge reset)
         if (reset) begin
-            sq_x_reg <= 0;
-            sq_y_reg <= 0;
+            ball_x_reg <= 0;
+            ball_y_reg <= 0;
             x_delta_reg <= 10'h001;
             y_delta_reg <= 10'h001;
         end else begin
-            sq_x_reg <= sq_x_next;
-            sq_y_reg <= sq_y_next;
+            ball_x_reg <= ball_x_next;
+            ball_y_reg <= ball_y_next;
             x_delta_reg <= x_delta_next;
             y_delta_reg <= y_delta_next;
         end
     
-    // Square boundaries
-    assign sq_x_l = sq_x_reg;                   // Left boundary
-    assign sq_y_t = sq_y_reg;                   // Top boundary
-    assign sq_x_r = sq_x_l + SQUARE_SIZE - 1;   // Right boundary
-    assign sq_y_b = sq_y_t + SQUARE_SIZE - 1;   // Bottom boundary
+    // Ball boundaries
+    assign ball_x_l = ball_x_reg;                   // Left boundary
+    assign ball_y_t = ball_y_reg;                   // Top boundary
+    assign ball_x_r = ball_x_l + BALL_SIZE - 1;     // Right boundary
+    assign ball_y_b = ball_y_t + BALL_SIZE - 1;     // Bottom boundary
     
     // Ball center coordinates
-    wire [9:0] ball_center_x = sq_x_l + (SQUARE_SIZE / 2);
-    wire [9:0] ball_center_y = sq_y_t + (SQUARE_SIZE / 2);
+    wire [9:0] ball_center_x = ball_x_l + (BALL_SIZE / 2);
+    wire [9:0] ball_center_y = ball_y_t + (BALL_SIZE / 2);
     
     // Circle rendering logic
     wire [9:0] dx = (x > ball_center_x) ? (x - ball_center_x) : (ball_center_x - x);
     wire [9:0] dy = (y > ball_center_y) ? (y - ball_center_y) : (ball_center_y - y);
     
-    assign sq_on = ((dx * dx) + (dy * dy)) <= ((SQUARE_SIZE / 2) * (SQUARE_SIZE / 2));
+    assign ball_on = ((dx * dx) + (dy * dy)) <= ((BALL_SIZE / 2) * (BALL_SIZE / 2));
 
+    // New ball position
+    assign ball_x_next = (refresh_tick) ? ball_x_reg + x_delta_reg : ball_x_reg;
+    assign ball_y_next = (refresh_tick) ? ball_y_reg + y_delta_reg : ball_y_reg;
     
-    // New square position
-    assign sq_x_next = (refresh_tick) ? sq_x_reg + x_delta_reg : sq_x_reg;
-    assign sq_y_next = (refresh_tick) ? sq_y_reg + y_delta_reg : sq_y_reg;
-    
-    // New square velocity 
+    // New ball velocity 
     always @* begin
-        x_delta_next = x_delta_reg;
-        y_delta_next = y_delta_reg;
-        
-        // Collision detection with the top and bottom borders
-        if (sq_y_t < 1)                              // Collide with top display edge
-            y_delta_next = SQUARE_VELOCITY_POS;     // Change y direction (move down)
-        else if (sq_y_b > Y_MAX)                     // Collide with bottom display edge
-            y_delta_next = SQUARE_VELOCITY_NEG;     // Change y direction (move up)
-        
-        // Collision detection with pads
-        if ((sq_x_r >= pad1_l) && (sq_x_r <= pad1_r) &&
-            (sq_y_b >= pad1_t) && (sq_y_t <= pad1_b)) // Check for overlap with pad1
-            x_delta_next = SQUARE_VELOCITY_NEG;       // Change x direction (move left)
-        else if ((sq_x_l <= pad2_r) && (sq_x_r >= pad2_l) &&
-         (sq_y_b >= pad2_t) && (sq_y_t <= pad2_b)) // Check for overlap with the right pad2
-    x_delta_next = SQUARE_VELOCITY_POS;  // Change x direction (move right)
-    end
-endmodule
+    // Default state: no scores and current x direction
+    score1 = 0;
+    score2 = 0;
+    x_delta_next = x_delta_reg; // Keep current x direction by default
+    y_delta_next = y_delta_reg; // Keep current y direction by default
 
+    if (refresh_tick) begin
+        // Collision detection with the top and bottom borders
+        if (ball_y_t < 1) begin
+            y_delta_next = BALL_VELOCITY_POS; // Move down
+        end else if (ball_y_b > Y_MAX) begin
+            y_delta_next = BALL_VELOCITY_NEG; // Move up
+        end
+        if (ball_x_r > X_MAX) begin
+        score1 = 1; // Player 1 scores
+        score2 = 0;
+        // Reset ball position and velocity for next round
+       
+    end else if (ball_x_l < 1) begin
+        score1 = 0;
+        score2 = 1; // Player 2 scores
+        // Reset ball position and velocity for next round
+    end else begin
+        score1 = 0;
+        score2 = 0;
+    end
+        // Collision detection with paddles
+        if ((ball_x_r >= pad1_l) && (ball_x_r <= pad1_r) &&
+            (ball_y_b >= pad1_t) && (ball_y_t <= pad1_b)) begin
+            x_delta_next = BALL_VELOCITY_NEG; // Bounce off pad 1 (left)
+        end else if ((ball_x_l <= pad2_r) && (ball_x_r >= pad2_l) &&
+                    (ball_y_b >= pad2_t) && (ball_y_t <= pad2_b)) begin
+            x_delta_next = BALL_VELOCITY_POS; // Bounce off pad 2 (right)
+        end
+    end
+end
+
+
+endmodule

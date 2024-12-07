@@ -40,7 +40,7 @@ module Top(
     wire [9:0] w_x, w_y;
     wire [11:0] w_rgb_next;
     wire [3:0] w_score1_unit,w_score2_unit;
-    wire pad1_on, pad2_on, ball_on, w_score1, w_score2;
+    wire pad1_on, pad2_on, ball_on, text_on, w_score1, w_score2;
     wire [9:0] y_pad1_t, y_pad1_b, y_pad2_t, y_pad2_b; // Add paddle boundaries
     wire [9:0] X_PAD1_L, X_PAD1_R, X_PAD2_L, X_PAD2_R; // Add paddle X boundaries
 
@@ -79,10 +79,15 @@ module Top(
         .score1(w_score1),
         .score2(w_score2)
     );
+    
+    Score_text(.clk(clk_100MHz),             
+               .dig0(w_score1_unit), .dig1(w_score2_unit),
+               .x(w_x), .y(w_y),      
+               .ascii_bit(text_on));        
 
     // Instantiate color multiplexer
     color_mux cm(
-        .video_on(w_vid_on), .pad1_on(pad1_on), .pad2_on(pad2_on), .ball_on(ball_on),
+        .video_on(w_vid_on), .pad1_on(pad1_on), .pad2_on(pad2_on), .ball_on(ball_on), .Text_on(text_on),
         .rgb(w_rgb_next)
     );
     

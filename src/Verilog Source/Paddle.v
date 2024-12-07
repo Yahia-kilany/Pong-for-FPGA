@@ -2,7 +2,7 @@
 
 module Paddle(
     input clk,  
-    input reset,    
+    input reset,
     input up1,       // control for paddle 1
     input down1,     // control for paddle 1
     input up2,       // control for paddle 2

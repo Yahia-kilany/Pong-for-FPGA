@@ -49,7 +49,7 @@ module ball(
             x_delta_reg <= x_delta_next;
             y_delta_reg <= y_delta_next;
         end
-
+    
     // Ball boundaries
     assign ball_x_l = ball_x_reg;
     assign ball_y_t = ball_y_reg;

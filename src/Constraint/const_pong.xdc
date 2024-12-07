@@ -14,7 +14,10 @@ set_property PACKAGE_PIN T17     [get_ports up2]
 set_property IOSTANDARD LVCMOS33 [get_ports up2]
 set_property PACKAGE_PIN U17     [get_ports down2]						
 set_property IOSTANDARD LVCMOS33 [get_ports down2]
-
+## sound
+set_property PACKAGE_PIN A14     [get_ports audio]						
+set_property IOSTANDARD LVCMOS33 [get_ports audio]
+## LEDS FOR DEBUGGING
 set_property PACKAGE_PIN L1     [get_ports w_score1]						
 set_property IOSTANDARD LVCMOS33 [get_ports w_score1]
 set_property PACKAGE_PIN P1    [get_ports w_score2]						

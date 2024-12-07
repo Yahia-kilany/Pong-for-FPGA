@@ -1,4 +1,4 @@
-# Pong Game for BASYS3 FPGA  
+# Pong Game for FPGA  
 
 This project implements the classic Pong game on an FPGA using Verilog. The game features real-time paddle and ball mechanics, collision detection, scoring, and output to a VGA display.  
 
@@ -8,7 +8,6 @@ This project implements the classic Pong game on an FPGA using Verilog. The game
 - [Introduction](#introduction)  
 - [Features](#features)  
 - [Project Structure](#project-structure)  
-- [Modules](#modules)  
 - [How to Run](#how-to-run)  
 - [Challenges Faced](#challenges-faced)  
 - [Contributors](#contributors)  
@@ -37,48 +36,25 @@ The Pong game is a retro arcade game where players control paddles to bounce a b
 
 ```
 /pong-game  
-├── src  
-│   ├── paddle.v              # Manages paddle movement and boundaries  
-│   ├── ball.v                # Handles ball mechanics, including position and collision  
-│   ├── score.v               # Tracks player scores  
-│   ├── score_7seg.v          # Displays scores on a 7-segment display  
-│   ├── color_mux.v           # Determines colors for ball, paddles, and background  
-│   ├── vga_controller.v      # VGA controller for display synchronization  
-│   ├── debouncer.v           # Debounces input buttons for reliable paddle control  
-│   ├── top.v                 # Top-level module integrating all components  
-├── constraints.xdc           # FPGA pin assignments for VGA, inputs, and display  
-├── README.md                 # Project documentation  
-```  
+├── Paddle.v                # Manages paddle movement and boundaries  
+├── RisingEdgeDetector.v    # Detects rising edges in inputs for synchronizing events  
+├── Score.v                 # Tracks player scores  
+├── Score_text.v            # Displays textual scores  
+├── Sound.v                 # Adds sound for collisions (in progress)  
+├── Top2.v                  # Top-level module integrating all components  
+├── ascii_rom.v             # ASCII font data for rendering text  
+├── ball.v                  # Handles ball mechanics and collisions  
+├── clk_div_7_seg.v         # Clock divider for 7-segment display multiplexing  
+├── color_mux.v             # Determines colors for game elements on the VGA display  
+├── const_pong.xdc          # Constraints file for FPGA pin mapping  
+├── debouncer.v             # Debounces button inputs for reliable operation  
+├── decode.v                # Decodes signals for specific functionalities  
+├── score_7seg.v            # Displays scores on a 7-segment display  
+├── vga_controller.v        # VGA controller for display synchronization  
+```
 
 ---
 
-## Modules  
-
-### 1. **Paddle Module (`paddle.v`)**  
-Handles paddle movement based on user input and ensures paddles remain within screen boundaries.  
-
-### 2. **Ball Module (`ball.v`)**  
-Manages ball position, direction, and collision detection with paddles and walls. Updates ball velocity upon collision.  
-
-### 3. **Score Module (`score.v`)**  
-Tracks player scores based on ball position and updates the score when a player misses the ball.  
-
-### 4. **Score Display Module (`score_7seg.v`)**  
-Displays scores on a 7-segment display using multiplexing and decoding logic.  
-
-### 5. **Color Mux Module (`color_mux.v`)**  
-Assigns colors for each game element (ball, paddles, and background) for rendering on the VGA screen.  
-
-### 6. **VGA Controller Module (`vga_controller.v`)**  
-Generates synchronization signals for the VGA display and tracks pixel positions.  
-
-### 7. **Debouncer Module (`debouncer.v`)**  
-Ensures reliable input by removing noise from button presses.  
-
-### 8. **Top-Level Module (`top.v`)**  
-Integrates all game components, including ball, paddles, VGA, scoring, and input handling.  
-
----
 
 ## How to Run  
 
@@ -87,26 +63,24 @@ Integrates all game components, including ball, paddles, VGA, scoring, and input
    - Connect the FPGA board (e.g., Basys 3) for physical testing.  
 
 2. **Simulation:**  
-   - Run simulations for individual modules to verify functionality.  
+   - Simulate each module independently to verify functionality.  
 
 3. **Synthesize and Program:**  
    - Synthesize the Verilog code in your FPGA toolchain.  
    - Program the bitstream onto the FPGA.  
 
 4. **Play the Game:**  
-   - Use buttons to control paddles and play Pong on a VGA-connected display.  
+   - Use the buttons to control the paddles and enjoy Pong on a VGA-connected display.  
 
 ---
 
 ## Challenges Faced  
 
-- **Collision Detection:** Left paddle collision was initially buggy due to a simple logic error, allowing the ball to pass through. This was resolved by refining the collision algorithm.  
-- **Scoring System:** Early versions failed to update scores correctly. Boundary detection logic was improved to ensure accurate scoring.  
-- **Ball Appearance:** The ball was initially square. A circle was implemented to improve realism.  
+- **Collision Detection:** Initially, paddle collision was buggy, allowing the ball to pass through. Fixed by refining logic.  
+- **VGA Synchronization:** Early issues with screen flickering were resolved by improving timing constraints.  
+- **Score Display:** Integrating ASCII text with the VGA was challenging but successful using the `ascii_rom`.  
 
 ---
-
-
 
 ## Contributors  
 

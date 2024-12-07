@@ -1,6 +1,7 @@
 module ball(
     input clk,                              // 100MHz from Basys 3
     input reset,                            // btnC
+    input [1:0] state,
     input [9:0] pad1_t,
     input [9:0] pad1_b,
     input [9:0] pad1_r,
@@ -11,6 +12,8 @@ module ball(
     input [9:0] pad2_l,
     input [9:0] x,
     input [9:0] y,                       // from VGA controller
+    output reg  pad_hit,
+    output reg  wall_hit,
     output ball_on,
     output score1,                // Player 1 score (4 bits for scores up to 15)
     output score2                 // Player 2 score
@@ -74,20 +77,26 @@ module ball(
     always @* begin
         x_delta_next = x_delta_reg;
         y_delta_next = y_delta_reg;
-
+        wall_hit=0;
+        pad_hit =0;
         // Collision with top and bottom borders
-        if (ball_y_t < 1)
+        if (ball_y_t < 1)begin
             y_delta_next = BALL_VELOCITY_POS; // Bounce down
-        else if (ball_y_b > Y_MAX)
+            wall_hit =1;
+            end 
+        else if (ball_y_b > Y_MAX)begin
             y_delta_next = BALL_VELOCITY_NEG; // Bounce up
-
+            wall_hit=1;
+            end 
         // Collision with paddles
         if ((ball_x_r >= pad1_l) && (ball_x_r <= pad1_r) &&
             (ball_y_b >= pad1_t) && (ball_y_t <= pad1_b)) begin
             x_delta_next = BALL_VELOCITY_NEG; // Bounce left
+            pad_hit=1;
         end else if ((ball_x_l <= pad2_r) && (ball_x_r >= pad2_l) &&
                     (ball_y_b >= pad2_t) && (ball_y_t <= pad2_b)) begin
             x_delta_next = BALL_VELOCITY_POS; // Bounce right
+            pad_hit=1;
         end
     end
    //scoring logic

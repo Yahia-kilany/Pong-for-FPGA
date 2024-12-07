@@ -30,14 +30,14 @@ module Score(
     output [3:0] player2_score_unit  // Player 2's score units digit
 );
 
-    reg [3:0] player2_unit_reg; // Internal register for Player 2's score
+    reg [3:0] player2_unit_reg ,playe; // Internal register for Player 2's score
 
     // Always block for Player 2's score
     always @(posedge score2 or posedge reset) begin
         if (reset) begin
             player2_unit_reg <= 4'b0;
         end 
-        else if (player2_unit_reg == 4'b1001) begin // Check if score is 9
+        else if (player2_unit_reg == 4'b1010) begin // Check if score is 9
             player2_unit_reg <= 4'b0;              // Reset to 0
         end
         else begin

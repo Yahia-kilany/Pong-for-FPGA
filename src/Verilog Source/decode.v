@@ -41,9 +41,8 @@ end
 always @ (en) begin
     case(en)
        0: anode = 4'b1110;
-       1: anode = 4'b1101;
        2: anode = 4'b1011;
-       3: anode = 4'b0111;
+       default : anode = 4'b1111;
     endcase
   
 end

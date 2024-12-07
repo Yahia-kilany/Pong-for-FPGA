@@ -5,7 +5,7 @@
 // 
 // Create Date: 11/30/2024 04:38:25 PM
 // Design Name: 
-// Module Name: Top2
+// Module Name: Top
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -32,17 +32,19 @@ module Top(
     output w_score1,
     output w_score2,
     output [6:0] seg,       // 7-segment display
-    output [3:0] an,     // anode for 4 digit display
-    output [11:0] rgb       // to DAC, to VGA port
+    output [3:0] an,        // anode for 4-digit display
+    output [11:0] rgb,       // to DAC, to VGA port
+    output audio             // PWM audio output
 );
 
     wire w_reset, w_up1, w_down1, w_up2, w_down2, w_vid_on, w_p_tick;
+    wire [1:0] w_state;
     wire [9:0] w_x, w_y;
     wire [11:0] w_rgb_next;
-    wire [3:0] w_score1_unit,w_score2_unit;
-    wire pad1_on, pad2_on, ball_on, text_on, w_score1, w_score2;
-    wire [9:0] y_pad1_t, y_pad1_b, y_pad2_t, y_pad2_b; // Add paddle boundaries
-    wire [9:0] X_PAD1_L, X_PAD1_R, X_PAD2_L, X_PAD2_R; // Add paddle X boundaries
+    wire [3:0] w_score1_unit, w_score2_unit;
+    wire pad1_on, pad2_on, ball_on, text_on, w_score1, w_score2, w_wall_hit, w_pad_hit;
+    wire [9:0] y_pad1_t, y_pad1_b, y_pad2_t, y_pad2_b; // Paddle boundaries
+    wire [9:0] X_PAD1_L, X_PAD1_R, X_PAD2_L, X_PAD2_R; // Paddle X boundaries
 
     // Instantiate the VGA controller
     vga_controller vga(
@@ -52,7 +54,8 @@ module Top(
 
     // Instantiate the paddle logic
     Paddle pg(
-        .clk(clk_100MHz), .reset(w_reset), .up1(w_up1), .down1(w_down1),
+        .clk(clk_100MHz), .reset(w_reset),
+        .up1(w_up1), .down1(w_down1),
         .up2(w_up2), .down2(w_down2), .x(w_x), .y(w_y),
         .pad1_t(y_pad1_t), .pad1_b(y_pad1_b),
         .pad1_l(X_PAD1_L), .pad1_r(X_PAD1_R),
@@ -76,21 +79,27 @@ module Top(
         .x(w_x),
         .y(w_y),
         .ball_on(ball_on),
+        .wall_hit(w_wall_hit),
+        .pad_hit(w_pad_hit),
         .score1(w_score1),
         .score2(w_score2)
     );
-    
-    Score_text(.clk(clk_100MHz),             
-               .dig0(w_score1_unit), .dig1(w_score2_unit),
-               .x(w_x), .y(w_y),      
-               .ascii_bit(text_on));        
+
+    // Instantiate the Score_text module
+    Score_text(
+        .clk(clk_100MHz),
+        .dig0(w_score1_unit), .dig1(w_score2_unit),
+        .x(w_x), .y(w_y),
+        .ascii_bit(text_on)
+    );
 
     // Instantiate color multiplexer
     color_mux cm(
         .video_on(w_vid_on), .pad1_on(pad1_on), .pad2_on(pad2_on), .ball_on(ball_on), .Text_on(text_on),
         .rgb(w_rgb_next)
     );
-    
+
+    // Instantiate the Score module
     Score score_inst(
         .clk(clk_100MHz),
         .reset(w_reset),
@@ -104,19 +113,31 @@ module Top(
     score_7seg score_display(
         .clk(clk_100MHz),
         .reset(w_reset),
-        .player1_unit (w_score1_unit),
-        .player1_tens (4'b0000),
-        .player2_unit (w_score2_unit),
-        .player2_tens (4'b0000),
+        .player1_unit(w_score1_unit),
+        .player1_tens(4'b0000),
+        .player2_unit(w_score2_unit),
+        .player2_tens(4'b0000),
         .seg(seg),
         .an(an)
     );
+
     // Debounce buttons
     debouncer dbR(.clk(clk_100MHz), .btn_in(reset), .btn_out(w_reset));
     debouncer dbU1(.clk(clk_100MHz), .btn_in(up1), .btn_out(w_up1));
     debouncer dbD1(.clk(clk_100MHz), .btn_in(down1), .btn_out(w_down1));
     debouncer dbU2(.clk(clk_100MHz), .btn_in(up2), .btn_out(w_up2));
     debouncer dbD2(.clk(clk_100MHz), .btn_in(down2), .btn_out(w_down2));
+
+    // Instantiate the sound module
+    sound sound_inst(
+        .clk(clk_100MHz),
+        .rst(w_reset),
+        .paddle_hit(w_pad_hit),
+        .wall_hit(w_wall_hit),
+        .score1(w_score1),
+        .score2(w_score2),
+        .audio_out(audio) // Connect the output to the Top module's audio port
+    );
 
     // RGB buffer
     reg [11:0] rgb_reg;
@@ -125,8 +146,5 @@ module Top(
             rgb_reg <= w_rgb_next;
     assign rgb = rgb_reg;
 
-
-    
 endmodule
-
 

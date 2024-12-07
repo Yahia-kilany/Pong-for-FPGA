@@ -98,7 +98,7 @@ module ball(
     end else if (refresh_tick) begin
         if (ball_x_l >= pad1_r && ball_x_l<=X_MAX && x_delta_reg == BALL_VELOCITY_POS) begin
             score2_reg <= 1; // Player 2 scores
-        end else if (ball_x_r <= pad2_l && x_delta_reg == BALL_VELOCITY_POS) begin
+        end else if (ball_x_r <= pad2_l && ~(x_delta_reg == BALL_VELOCITY_POS)) begin
             score1_reg <= 1; // Player 1 scores
         end else begin
             score1_reg <= 0;

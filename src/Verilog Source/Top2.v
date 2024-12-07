@@ -29,6 +29,8 @@ module Top(
     input down2,            // btnD for paddle 2
     output hsync,           // to VGA port
     output vsync,           // to VGA port
+    output w_score1,
+    output w_score2,
     output [6:0] seg,       // 7-segment display
     output [3:0] an,     // anode for 4 digit display
     output [11:0] rgb       // to DAC, to VGA port
@@ -37,7 +39,7 @@ module Top(
     wire w_reset, w_up1, w_down1, w_up2, w_down2, w_vid_on, w_p_tick;
     wire [9:0] w_x, w_y;
     wire [11:0] w_rgb_next;
-    wire [3:0] w_score1_unit, w_score1_tens,w_score2_units,w_score2_tens;
+    wire [3:0] w_score1_unit,w_score2_unit;
     wire pad1_on, pad2_on, ball_on, w_score1, w_score2;
     wire [9:0] y_pad1_t, y_pad1_b, y_pad2_t, y_pad2_b; // Add paddle boundaries
     wire [9:0] X_PAD1_L, X_PAD1_R, X_PAD2_L, X_PAD2_R; // Add paddle X boundaries
@@ -83,16 +85,14 @@ module Top(
         .video_on(w_vid_on), .pad1_on(pad1_on), .pad2_on(pad2_on), .ball_on(ball_on),
         .rgb(w_rgb_next)
     );
-    // Instantiate the score module
+    
     Score score_inst(
         .clk(clk_100MHz),
         .reset(w_reset),
         .score1(w_score1),
         .score2(w_score2),
         .player1_score_unit(w_score1_unit),
-        .player1_score_tens(w_score1_tens),
-        .player2_score_unit(w_score2_unit),
-        .player2_score_tens(w_score2_tens)
+        .player2_score_unit(w_score2_unit)
     );
 
     // Instantiate the 7-segment display controller
@@ -100,9 +100,9 @@ module Top(
         .clk(clk_100MHz),
         .reset(w_reset),
         .player1_unit (w_score1_unit),
-        .player1_tens (w_score1_tens),
+        .player1_tens (4'b0000),
         .player2_unit (w_score2_unit),
-        .player2_tens (w_score2_tens),
+        .player2_tens (4'b0000),
         .seg(seg),
         .an(an)
     );

@@ -11,7 +11,6 @@ This project implements the classic Pong game on an FPGA using Verilog. The game
 - [Modules](#modules)  
 - [How to Run](#how-to-run)  
 - [Challenges Faced](#challenges-faced)  
-- [Future Enhancements](#future-enhancements)  
 - [Contributors](#contributors)  
 
 ---
@@ -107,12 +106,7 @@ Integrates all game components, including ball, paddles, VGA, scoring, and input
 
 ---
 
-## Future Enhancements  
 
-- Introduce power-ups or difficulty levels.  
-- Support multiplayer mode with additional paddles.  
-
----
 
 ## Contributors  
 

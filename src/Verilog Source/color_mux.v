@@ -31,7 +31,7 @@ module color_mux(
     wire [11:0] pad1_rgb = 12'hAAA;       // gray paddle 1
     wire [11:0] pad2_rgb = 12'hF00;       // blue paddle 2
     wire [11:0] bg_rgb = 12'hFFF;         // white background
-    wire [11:0] text_rgb = 12'hF00;
+    wire [11:0] text_rgb = 12'hF00;       // blue text
     wire [11:0] ball_rgb = 12'h0F0;             // red & green = yellow for square
 
     always @* begin
@@ -44,7 +44,7 @@ module color_mux(
         else if(ball_on)
             rgb = ball_rgb;     // ball color
         else if(Text_on)
-            rgb = text_rgb;
+            rgb = text_rgb;     // text color
         else
             rgb = bg_rgb;       // background
     end

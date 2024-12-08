@@ -46,7 +46,7 @@ module Score(
     end
 
     // Assign Player 2's score with adjustment
-       assign player2_score_unit = (player2_unit_reg==0)? 0 : player2_unit_reg - 1;
+    assign player2_score_unit = (player2_unit_reg==0)? 0 : player2_unit_reg - 1;
     
     
     // Always block for Player 1's score
